@@ -1,7 +1,8 @@
 const express = require('express');
 const mysql = require('mysql2');
 const inquirer = require('inquirer');
-const view = require('./handleInput.js')
+const {viewData, addData} = require('./viewData.js');
+
 
 const PORT = process.env.PORT || 3001;
 const app = express();
@@ -29,7 +30,13 @@ const db = mysql.createConnection(
         'Update an employee role']
     }])
         .then((res) => {
-            view(res.option)
+            const stringIn = `${res.option}`;
+            if (stringIn === "View all departments" || stringIn === "View all roles" || stringIn === "View all employees") {
+                console.log(stringIn);
+                viewData(stringIn);
+            } else if (stringIn === "Add a department") {
+                addData(stringIn);
+            }
         }, (err) => err ? console.log(err) : console.log('User data saved'));
 
 
@@ -41,5 +48,3 @@ const db = mysql.createConnection(
   app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
   });
-  
-module.exports = {db, mysql};
