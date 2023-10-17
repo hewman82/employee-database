@@ -26,6 +26,9 @@ function viewData(stringIn) {
       LEFT JOIN employee m ON m.id = employee.manager_id;`
   }
   db.query(`${queryString}`, function (err, results) {
+    if(err) {
+      console.log(err);
+    }
     console.table(results);
   });
 }
@@ -41,8 +44,10 @@ async function addData(stringIn) {
       var queryString = `INSERT INTO department (name) 
       VALUES ("${res.department}")`;
       db.query(`${queryString}`, function (err, results) {
-        console.log(`${res.department} added to department table`);
-      });
+          if(results) {
+          console.log(`${res.department} added to department table`);
+          } else { console.log(err) }
+      })
     }, (err) => err ? console.log(err) : console.log('User data saved'));
   } else if(stringIn === 'Add a role') {
     await inquirer.prompt([{
@@ -62,9 +67,11 @@ async function addData(stringIn) {
       var queryString = `INSERT INTO role (title, salary, department_id)
       VALUES ("${res.title}", "${res.salary}", "${res.id}")`;
       db.query(`${queryString}`, function (err, results) {
-        console.log(`${res.title} added to role table`);
+        if(results) {
+          console.log(`${res.title} added to role table`);
+        } else { console.log(err) }
       });
-    })
+    }, (err) => err ? console.log(err) : console.log('User data saved'));
   } else if(stringIn === 'Add an employee') {
     await inquirer.prompt([{
       type: 'input',
@@ -87,9 +94,11 @@ async function addData(stringIn) {
       var queryString = `INSERT INTO employee (first_name, last_name, role_id, manager_id)
       VALUES ("${res.firstName}", "${res.lastName}", "${res.role}", "${res.manager}")`;
       db.query(`${queryString}`, function (err, results) {
-        console.log(`${res.firstName} ${res.lastName} added to employee table`);
+        if(results) {
+          console.log(`${res.firstName} ${res.lastName} added to employee table`);
+        } else { console.log(err) }
       });
-    })
+    }, (err) => err ? console.log(err) : console.log('User data saved'));
   } else if(stringIn === 'Update an employee role') {
     await inquirer.prompt([{
       type: 'input',
@@ -105,9 +114,11 @@ async function addData(stringIn) {
       SET employee.role_id = ${res.role}
       WHERE employee.id = ${res.employee};`;
       db.query(`${queryString}`, function (err, results) {
-        console.log(`Role updated in employee table`);
-      });
-    })
+        if(results) {
+          console.log(`Role updated in employee table`);
+        } else { console.log(err) }
+      })
+    }, (err) => err ? console.log(err) : console.log('User data saved'));
   }
 
 }
