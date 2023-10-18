@@ -10,21 +10,29 @@ const db = mysql.createConnection(
     }
   );
 
+// Function to show data from tables from database
 function viewData(stringIn) {
   if(stringIn === 'View all departments') {
-      var queryString = `SELECT * 
-      FROM department`
+    // Define queryString based on selected option
+    // Select all rows from department table
+    var queryString = `SELECT * 
+    FROM department`
   } else if(stringIn === 'View all roles') {
-      var queryString = `SELECT role.id, role.title, role.salary, department.department_name 
-      FROM role 
-      JOIN department on role.department_id = department.id;`
+    // Select specific columns from role and department tables, joined by department id to show department role belongs to
+    var queryString = `SELECT role.id, role.title, role.salary, department.department_name 
+    FROM role 
+    JOIN department on role.department_id = department.id;`
   } else if(stringIn === 'View all employees') {
-      var queryString = `SELECT employee.id, employee.first_name, employee.last_name, role.title, role.salary, department.department_name, CONCAT(m.first_name, ' ', m.last_name) AS manager
-      FROM employee 
-      JOIN role ON employee.role_id = role.id
-      JOIN department ON role.department_id = department.id
-      LEFT JOIN employee m ON m.id = employee.manager_id;`
+    // Select specific columns from employee, role, and department tables and use m as a table alias for employee table to include a column called manager containing concatenated first and last names of employee manager
+    // Join role and department tables to employee table by ids
+    // Left join created employee m table to employee table by manager id
+    var queryString = `SELECT employee.id, employee.first_name, employee.last_name, role.title, role.salary, department.department_name, CONCAT(m.first_name, ' ', m.last_name) AS manager
+    FROM employee 
+    JOIN role ON employee.role_id = role.id
+    JOIN department ON role.department_id = department.id
+    LEFT JOIN employee m ON m.id = employee.manager_id;`
   }
+  // Run database query with created string
   db.query(`${queryString}`, function (err, results) {
     if(err) {
       console.log(err);
@@ -33,19 +41,25 @@ function viewData(stringIn) {
   });
 }
 
+// Function to add or update data in database
 async function addData(stringIn) {
+  // Depending on selected option
   if(stringIn === 'Add a department') {
+    // Prompt for extra info
     await inquirer.prompt([{
       type: 'input',
       name: 'department',
       message: 'Please enter a department name'
     }])
     .then((res) => {
+      // Create query string with provided info
       var queryString = `INSERT INTO department (name) 
       VALUES ("${res.department}")`;
+      // Run query with created string
       db.query(`${queryString}`, function (err, results) {
           if(results) {
-          console.log(`${res.department} added to department table`);
+            // If succesful, provide confirmation
+            console.log(`${res.department} added to department table`);
           } else { console.log(err) }
       })
     }, (err) => err ? console.log(err) : console.log('User data saved'));
@@ -120,7 +134,7 @@ async function addData(stringIn) {
       })
     }, (err) => err ? console.log(err) : console.log('User data saved'));
   }
-
 }
 
+// Export functions
 module.exports = { viewData, addData };

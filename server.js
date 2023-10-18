@@ -3,7 +3,6 @@ const mysql = require('mysql2');
 const inquirer = require('inquirer');
 const {viewData, addData} = require('./handleInput.js');
 
-
 const PORT = process.env.PORT || 3001;
 const app = express();
 
@@ -17,6 +16,7 @@ const db = mysql.createConnection(
     console.log(`Connected to the employees_db database.`)
   );
 
+function init() {
   inquirer
     .prompt([{
         type: 'checkbox',
@@ -38,7 +38,7 @@ const db = mysql.createConnection(
             }
         }, (err) => err ? console.log(err) : console.log('User data saved'));
 
-
+}
 
   app.use((req, res) => {
     res.status(404).end();
@@ -47,3 +47,5 @@ const db = mysql.createConnection(
   app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
   });
+
+init();
