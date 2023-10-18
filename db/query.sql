@@ -1,0 +1,1 @@
+SELECT id AS value, name FROM department;

@@ -17,7 +17,6 @@ const db = mysql.createConnection(
     console.log(`Connected to the employees_db database.`)
   );
 
-// Init function to start app
 function init() {
   // Prompt for how user would like to interact with the database
   inquirer
@@ -42,8 +41,7 @@ function init() {
             } else {
               addData(stringIn);
             }
-        }, (err) => err ? console.log(err) : console.log('User data saved'));
-
+        });
 }
 
   app.use((req, res) => {
@@ -54,5 +52,4 @@ function init() {
     console.log(`Server running on port ${PORT}`);
   });
 
-// Call init function
 init();

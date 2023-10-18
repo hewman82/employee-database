@@ -8,7 +8,7 @@ const db = mysql.createConnection(
       password: 'root',
       database: 'employees_db'
     }
-  );
+  ).promise();
 
 // Function to show data from tables from database
 function viewData(stringIn) {
@@ -33,13 +33,29 @@ function viewData(stringIn) {
     LEFT JOIN employee m ON m.id = employee.manager_id;`
   }
   // Run database query with created string
-  db.query(`${queryString}`, function (err, results) {
-    if(err) {
-      console.log(err);
-    }
-    console.table(results);
-  });
+  db.query(`${queryString}`)
+    .then((results) => {
+      console.table(results[0]);
+    });
 }
+
+async function listDepartments() {
+  const departmentQuery = `SELECT id AS value, department_name AS name FROM department;`;
+  const departments = await db.query(departmentQuery);
+  return departments[0];
+};
+
+async function listRoles() {
+  const roleQuery = `SELECT id AS value, title AS name FROM role;`;
+  const roles = await db.query(roleQuery);
+  return roles[0];
+};
+
+async function listEmployees() {
+  const employeeQuery = `SELECT id AS value, CONCAT(first_name, ' ', last_name) AS name FROM employee;`;
+  const employees = await db.query(employeeQuery);
+  return employees[0];
+};
 
 // Function to add or update data in database
 async function addData(stringIn) {
@@ -53,16 +69,14 @@ async function addData(stringIn) {
     }])
     .then((res) => {
       // Create query string with provided info
-      var queryString = `INSERT INTO department (name) 
+      var queryString = `INSERT INTO department (department_name)
       VALUES ("${res.department}")`;
       // Run query with created string
-      db.query(`${queryString}`, function (err, results) {
-          if(results) {
-            // If succesful, provide confirmation
-            console.log(`${res.department} added to department table`);
-          } else { console.log(err) }
-      })
-    }, (err) => err ? console.log(err) : console.log('User data saved'));
+      db.query(`${queryString}`)
+          .then((results) => {
+            console.log(`${res.department} added to departments`);
+          })
+    });
   } else if(stringIn === 'Add a role') {
     await inquirer.prompt([{
       type: 'input',
@@ -73,19 +87,19 @@ async function addData(stringIn) {
       name: 'salary',
       message: 'Please enter a salary for the role'
     }, {
-      type: 'input',
+      type: 'checkbox',
       name: 'id',
-      message: 'Please enter a department id for the role',
+      message: 'Please select a department for the role',
+      choices: await listDepartments(),
     }])
     .then((res) => {
       var queryString = `INSERT INTO role (title, salary, department_id)
       VALUES ("${res.title}", "${res.salary}", "${res.id}")`;
-      db.query(`${queryString}`, function (err, results) {
-        if(results) {
-          console.log(`${res.title} added to role table`);
-        } else { console.log(err) }
-      });
-    }, (err) => err ? console.log(err) : console.log('User data saved'));
+      db.query(`${queryString}`)
+        .then((results) => {
+            console.log(`${res.title} added to roles`)
+        });
+    });
   } else if(stringIn === 'Add an employee') {
     await inquirer.prompt([{
       type: 'input',
@@ -96,42 +110,49 @@ async function addData(stringIn) {
       name: 'lastName',
       message: 'Please enter a last name for the employee',
     }, {
-      type: 'input',
+      type: 'checkbox',
       name: 'role',
-      message: 'Please enter a role id for the employee',
+      message: 'Please select a role for the employee',
+      choices: await listRoles(),
     }, {
-      type: 'input',
+      type: 'checkbox',
       name: 'manager',
-      message: 'Please enter a manager id for the employee',
+      message: 'Please select a manager for the employee or press enter to skip',
+      choices: await listEmployees(),
     }])
     .then((res) => {
-      var queryString = `INSERT INTO employee (first_name, last_name, role_id, manager_id)
-      VALUES ("${res.firstName}", "${res.lastName}", "${res.role}", "${res.manager}")`;
-      db.query(`${queryString}`, function (err, results) {
-        if(results) {
-          console.log(`${res.firstName} ${res.lastName} added to employee table`);
-        } else { console.log(err) }
-      });
+      if(res.manager.length === 0) {
+        var queryString = `INSERT INTO employee (first_name, last_name, role_id)
+        VALUES ("${res.firstName}", "${res.lastName}", "${res.role}");`
+      } else {
+        var queryString = `INSERT INTO employee (first_name, last_name, role_id, manager_id)
+        VALUES ("${res.firstName}", "${res.lastName}", "${res.role}", ${res.manager})`;
+      }
+      db.query(`${queryString}`)
+        .then((results) => {
+          console.log('Employee added');
+        })
     }, (err) => err ? console.log(err) : console.log('User data saved'));
   } else if(stringIn === 'Update an employee role') {
     await inquirer.prompt([{
-      type: 'input',
+      type: 'checkbox',
       name: 'employee',
-      message: 'Please enter an employee id',
+      message: 'Please select an employee',
+      choices: await listEmployees(),
     }, {
-      type: 'input',
+      type: 'checkbox',
       name: 'role',
-      message: 'Please enter a new role id for the employee',
+      message: 'Please select a new role for the employee',
+      choices: await listRoles(),
     }])
     .then((res) => {
       var queryString = `UPDATE employee 
       SET employee.role_id = ${res.role}
       WHERE employee.id = ${res.employee};`;
-      db.query(`${queryString}`, function (err, results) {
-        if(results) {
-          console.log(`Role updated in employee table`);
-        } else { console.log(err) }
-      })
+      db.query(`${queryString}`)
+        .then((results) => {
+          console.log('Employee role updated');
+        })
     }, (err) => err ? console.log(err) : console.log('User data saved'));
   }
 }
