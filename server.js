@@ -1,6 +1,7 @@
 const express = require('express');
 const mysql = require('mysql2');
 const inquirer = require('inquirer');
+// Import functions
 const {viewData, addData} = require('./handleInput.js');
 
 const PORT = process.env.PORT || 3001;
@@ -16,11 +17,14 @@ const db = mysql.createConnection(
     console.log(`Connected to the employees_db database.`)
   );
 
+// Init function to start app
 function init() {
+  // Prompt for how user would like to interact with the database
   inquirer
     .prompt([{
         type: 'checkbox',
         name: 'option',
+        message: 'What would you like to do?',
         choices: ['View all departments', 
         'View all roles', 
         'View all employees', 
@@ -30,7 +34,9 @@ function init() {
         'Update an employee role']
     }])
         .then((res) => {
+            // Save answer as a string
             const stringIn = `${res.option}`;
+            // Use viewData or addData function with answer depending on selection
             if (stringIn === "View all departments" || stringIn === "View all roles" || stringIn === "View all employees") {
               viewData(stringIn);
             } else {
@@ -48,4 +54,5 @@ function init() {
     console.log(`Server running on port ${PORT}`);
   });
 
+// Call init function
 init();
