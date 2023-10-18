@@ -1,4 +1,4 @@
-# employee-database![Static Badge](https://img.shields.io/badge/LICENSE-MIT_License-purple)
+![Static Badge](https://img.shields.io/badge/LICENSE-MIT_License-purple)
 
   # Employee Tracker
 
@@ -21,7 +21,7 @@
 
   ## Usage
   
-  Run node server in the terminal to initialize the application. Select an option from the menu to choose how you'd like to interact with the database. Follow further prompts to add or update data.
+  Run node server in the terminal to initialize the application. Select an option from the menu to choose how you'd like to interact with the database. Follow further prompts to add or update data. [Demo video](https://drive.google.com/file/d/1b0jT2aCZKXd_JGBO6B0HefVAi8--NIHZ/view)
   
   ## Contributing
   
@@ -35,3 +35,4 @@
   Contact me here with any questions
   - [Github](https://github.com/hewman82)
   - Email: hewman82@gmail.com
+  
